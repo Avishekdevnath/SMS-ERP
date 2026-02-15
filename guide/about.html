@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SMS ERP — About Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#020916;--bg2:#050f1f;--panel:rgba(6,20,45,0.88);
+      --cyan:#00e5ff;--violet:#7b2fff;--violet2:#a259ff;
+      --green:#00ffb2;--red:#ff2d6b;--orange:#ff7b00;--yellow:#ffe55c;
+      --text:#e8f4ff;--muted:#6a8aab;
+      --border:rgba(0,229,255,0.13);--border2:rgba(255,255,255,0.06);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden;cursor:none;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+    body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.035) 0px,rgba(0,0,0,0.035) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:1;}
+
+    #cursor{position:fixed;width:12px;height:12px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;}
+    #cursor-ring{position:fixed;width:40px;height:40px;border:1px solid var(--cyan);border-radius:50%;pointer-events:none;z-index:9998;opacity:0.45;}
+
+    nav{position:fixed;top:0;width:100%;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;border-bottom:1px solid var(--border);background:rgba(2,9,22,0.92);backdrop-filter:blur(20px);}
+    .nav-logo{font-family:'Orbitron',monospace;font-weight:900;font-size:1.05rem;letter-spacing:0.2em;color:var(--cyan);text-decoration:none;display:flex;align-items:center;gap:10px;}
+    .logo-icon{width:32px;height:32px;border:2px solid var(--cyan);display:grid;place-items:center;font-size:0.7rem;clip-path:polygon(10% 0%,90% 0%,100% 10%,100% 90%,90% 100%,10% 100%,0% 90%,0% 10%);}
+    .nav-links{display:flex;gap:32px;list-style:none;}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.2s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--cyan);transition:width 0.3s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--cyan);}
+    .nav-links a:hover::after,.nav-links a.active::after{width:100%;}
+    .nav-btn{font-family:'Orbitron',monospace;font-size:0.7rem;letter-spacing:0.15em;padding:10px 24px;background:transparent;border:1px solid var(--cyan);color:var(--cyan);text-decoration:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:background 0.25s,color 0.25s;}
+    .nav-btn:hover{background:var(--cyan);color:var(--bg);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+    /* ── HERO ──── */
+    .hero{position:relative;z-index:2;padding:160px 48px 100px;overflow:hidden;}
+    .hero-orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;}
+    .hero-orb-1{width:600px;height:600px;background:rgba(123,47,255,0.12);top:-150px;right:-100px;}
+    .hero-orb-2{width:400px;height:400px;background:rgba(0,229,255,0.08);bottom:-100px;left:-80px;}
+
+    .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+
+    .hero-left .eyebrow{font-family:'Orbitron',monospace;font-size:0.6rem;letter-spacing:0.3em;color:var(--cyan);text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+    .hero-left .eyebrow::before{content:'';width:32px;height:1px;background:var(--cyan);}
+
+    .hero-left h1{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(2rem,4vw,3.5rem);line-height:1.08;margin-bottom:20px;animation:fadeUp 0.7s ease forwards;}
+    .hero-left h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    .hero-left p{font-size:1rem;color:var(--muted);line-height:1.75;margin-bottom:36px;animation:fadeUp 0.7s 0.15s ease both;}
+
+    .hero-tags{display:flex;flex-wrap:wrap;gap:10px;animation:fadeUp 0.7s 0.3s ease both;}
+    .h-tag{font-family:'Orbitron',monospace;font-size:0.55rem;letter-spacing:0.12em;padding:8px 16px;border:1px solid var(--border);color:var(--muted);text-transform:uppercase;}
+
+    /* Mission block */
+    .hero-right{position:relative;animation:fadeUp 0.7s 0.2s ease both;}
+    .mission-block{
+      border:1px solid var(--border);background:var(--panel);padding:40px;
+      position:relative;overflow:hidden;
+    }
+    .mission-block::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--cyan),var(--violet));
+    }
+    .mb-eyebrow{font-family:'Orbitron',monospace;font-size:0.58rem;letter-spacing:0.25em;color:var(--cyan);text-transform:uppercase;margin-bottom:16px;}
+    .mb-quote{
+      font-size:1.1rem;color:var(--text);line-height:1.65;
+      font-style:italic;margin-bottom:24px;
+      border-left:2px solid var(--cyan);padding-left:20px;
+    }
+    .mb-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-top:28px;}
+    .mb-stat{background:var(--bg2);padding:20px 16px;text-align:center;}
+    .mb-stat .val{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .mb-stat .lbl{font-size:0.7rem;color:var(--muted);margin-top:4px;font-family:'Orbitron',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;}
+
+    /* ── STORY ──── */
+    .story-section{position:relative;z-index:2;padding:120px 48px;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+    .story-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start;}
+
+    .story-left .s-eyebrow{font-family:'Orbitron',monospace;font-size:0.6rem;letter-spacing:0.3em;color:var(--cyan);text-transform:uppercase;margin-bottom:16px;}
+    .story-left h2{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,3vw,2.5rem);font-weight:700;line-height:1.2;margin-bottom:0;}
+    .story-left h2 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    .story-right p{font-size:0.95rem;color:var(--muted);line-height:1.8;margin-bottom:20px;}
+    .story-right p:last-child{margin-bottom:0;}
+    .story-right strong{color:var(--text);font-weight:500;}
+
+    /* ── VALUES ──── */
+    .values-section{position:relative;z-index:2;padding:120px 48px;}
+    .values-header{max-width:600px;margin:0 auto 64px;text-align:center;}
+    .v-eyebrow{font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.3em;color:var(--cyan);text-transform:uppercase;margin-bottom:12px;}
+    .v-title{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:700;}
+    .v-title .grad{background:linear-gradient(90deg,var(--cyan),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);max-width:1100px;margin:0 auto;}
+    .value-card{background:var(--panel);padding:40px 32px;position:relative;overflow:hidden;transition:background 0.3s;}
+    .value-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--vc-color,var(--cyan)),transparent);transform:scaleX(0);transform-origin:left;transition:transform 0.4s;}
+    .value-card:hover::before{transform:scaleX(1);}
+    .value-card:hover{background:rgba(6,22,50,0.98);}
+    .vc-num{font-family:'Orbitron',monospace;font-size:0.55rem;letter-spacing:0.15em;color:var(--muted);margin-bottom:20px;}
+    .vc-icon{font-size:2rem;margin-bottom:20px;display:block;}
+    .vc-title{font-family:'Orbitron',monospace;font-size:0.82rem;letter-spacing:0.1em;color:var(--text);margin-bottom:12px;text-transform:uppercase;}
+    .vc-desc{font-size:0.82rem;color:var(--muted);line-height:1.7;}
+
+    /* ── TEAM ──── */
+    .team-section{position:relative;z-index:2;padding:120px 48px;background:var(--bg2);border-top:1px solid var(--border);}
+    .team-header{text-align:center;margin-bottom:64px;}
+    .t-eyebrow{font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.3em;color:var(--cyan);text-transform:uppercase;margin-bottom:12px;}
+    .t-title{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:700;}
+    .t-title .grad{background:linear-gradient(90deg,var(--cyan),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;max-width:1100px;margin:0 auto;}
+    .team-card{
+      background:var(--panel);border:1px solid var(--border);
+      padding:32px 28px;text-align:center;
+      transition:border-color 0.3s,transform 0.3s;
+      position:relative;overflow:hidden;
+    }
+    .team-card:hover{border-color:var(--tc-color,var(--cyan));transform:translateY(-4px);}
+    .team-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--tc-color,var(--cyan)),transparent);opacity:0;transition:opacity 0.3s;}
+    .team-card:hover::before{opacity:1;}
+
+    .tc-avatar{
+      width:72px;height:72px;margin:0 auto 20px;
+      border:1px solid var(--tc-color,var(--cyan));
+      clip-path:polygon(8px 0%,calc(100% - 8px) 0%,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0% calc(100% - 8px),0% 8px);
+      display:grid;place-items:center;font-size:1.8rem;
+      background:rgba(0,0,0,0.4);
+    }
+    .tc-name{font-family:'Orbitron',monospace;font-size:0.8rem;letter-spacing:0.1em;color:var(--text);margin-bottom:6px;}
+    .tc-role{font-size:0.72rem;color:var(--tc-color,var(--cyan));margin-bottom:12px;font-family:'Orbitron',monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;}
+    .tc-bio{font-size:0.78rem;color:var(--muted);line-height:1.6;}
+
+    /* ── TIMELINE ──── */
+    .timeline-section{position:relative;z-index:2;padding:120px 48px;}
+    .tl-header{text-align:center;margin-bottom:64px;}
+    .tl-eyebrow{font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.3em;color:var(--cyan);text-transform:uppercase;margin-bottom:12px;}
+    .tl-title{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:700;}
+    .tl-title .grad{background:linear-gradient(90deg,var(--cyan),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    .timeline{max-width:700px;margin:0 auto;position:relative;}
+    .timeline::before{content:'';position:absolute;left:24px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--cyan),var(--violet),transparent);}
+    .tl-item{display:flex;gap:32px;margin-bottom:48px;position:relative;}
+    .tl-item:last-child{margin-bottom:0;}
+    .tl-dot{
+      width:48px;height:48px;flex-shrink:0;
+      border:1px solid var(--tl-color,var(--cyan));
+      display:grid;place-items:center;font-size:1rem;
+      clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px);
+      background:var(--bg);position:relative;z-index:1;
+    }
+    .tl-content{padding-top:10px;}
+    .tl-year{font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.15em;color:var(--tl-color,var(--cyan));text-transform:uppercase;margin-bottom:6px;}
+    .tl-event{font-family:'Orbitron',monospace;font-size:0.85rem;color:var(--text);margin-bottom:8px;}
+    .tl-desc{font-size:0.82rem;color:var(--muted);line-height:1.65;}
+
+    /* ── CTA ──── */
+    .cta-section{
+      position:relative;z-index:2;margin:0 48px 80px;
+      padding:64px;border:1px solid var(--border);background:var(--panel);
+      text-align:center;overflow:hidden;
+    }
+    .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,229,255,0.06) 0%,transparent 70%);pointer-events:none;}
+    .cta-corner{position:absolute;width:50px;height:50px;border-color:var(--cyan);border-style:solid;opacity:0.25;}
+    .cta-corner.tl{top:24px;left:24px;border-width:2px 0 0 2px;}
+    .cta-corner.tr{top:24px;right:24px;border-width:2px 2px 0 0;}
+    .cta-corner.bl{bottom:24px;left:24px;border-width:0 0 2px 2px;}
+    .cta-corner.br{bottom:24px;right:24px;border-width:0 2px 2px 0;}
+    .cta-section h2{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;margin-bottom:16px;}
+    .cta-section h2 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .cta-section p{font-size:0.95rem;color:var(--muted);margin-bottom:32px;}
+    .cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+    .btn-primary{font-family:'Orbitron',monospace;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;padding:15px 32px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--bg);font-weight:700;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);display:inline-block;transition:opacity 0.2s,transform 0.2s;}
+    .btn-primary:hover{opacity:0.88;transform:translateY(-2px);}
+    .btn-ghost{font-family:'Orbitron',monospace;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;padding:14px 32px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--text);clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);display:inline-block;transition:border-color 0.2s,color 0.2s;}
+    .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+
+    footer{position:relative;z-index:2;border-top:1px solid var(--border);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+    footer .fc{font-family:'Orbitron',monospace;font-size:0.58rem;letter-spacing:0.15em;color:var(--muted);}
+    .footer-status{display:flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;font-size:0.58rem;letter-spacing:0.1em;color:var(--green);}
+    .footer-status .dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+
+    @media(max-width:900px){
+      nav{padding:0 20px;}
+      .nav-links{display:none;}
+      .hero{padding:120px 20px 60px;}
+      .hero-inner{grid-template-columns:1fr;gap:40px;}
+      .story-section,.values-section,.team-section,.timeline-section{padding:80px 20px;}
+      .story-inner{grid-template-columns:1fr;gap:32px;}
+      .values-grid{grid-template-columns:1fr 1fr;}
+      .cta-section{margin:0 20px 60px;padding:40px 20px;}
+      .cta-corner{display:none;}
+      footer{padding:16px 20px;}
+    }
+    @media(max-width:560px){
+      .values-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <a href="/" class="nav-logo"><div class="logo-icon">⬡</div>SMS ERP</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/features">Features</a></li>
+    <li><a href="/about" class="active">About</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+  <a href="/auth/login" class="nav-btn">Login →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="eyebrow">// Our Mission</div>
+      <h1>Building the Future of <span class="grad">Education Ops</span></h1>
+      <p>SMS ERP was built by educators and engineers who were tired of managing student operations across disconnected spreadsheets, email threads, and legacy software. We built the system we always needed.</p>
+      <div class="hero-tags">
+        <span class="h-tag">Open Source</span>
+        <span class="h-tag">Production Ready</span>
+        <span class="h-tag">MIT Licensed</span>
+        <span class="h-tag">Next.js 15</span>
+        <span class="h-tag">MongoDB</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="mission-block">
+        <div class="mb-eyebrow">// Core Mission Statement</div>
+        <p class="mb-quote">"Every educational institution deserves enterprise-grade operational infrastructure — regardless of size or budget."</p>
+        <p style="font-size:0.82rem;color:var(--muted);line-height:1.65;">We're committed to making student management transparent, scalable, and developer-friendly. SMS ERP is the foundation — your team builds the rest.</p>
+        <div class="mb-stats">
+          <div class="mb-stat"><div class="val">1000+</div><div class="lbl">Students Served</div></div>
+          <div class="mb-stat"><div class="val">50+</div><div class="lbl">Expert Mentors</div></div>
+          <div class="mb-stat"><div class="val">100+</div><div class="lbl">Missions Tracked</div></div>
+          <div class="mb-stat"><div class="val">95%</div><div class="lbl">Success Rate</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="story-section">
+  <div class="story-inner">
+    <div class="story-left">
+      <div class="s-eyebrow">// Our Story</div>
+      <h2>Why We <span class="grad">Built This</span></h2>
+    </div>
+    <div class="story-right">
+      <p>SMS ERP started as an internal tool for a small bootcamp running cohorts of 20 students. The founders were running admissions in Google Forms, tracking mentor assignments in Notion, and managing mission progress in Airtable. Each system talked to none of the others.</p>
+      <p>After the third cohort, it became clear: <strong>the real bottleneck wasn't teaching — it was operations.</strong> SREs were spending 40% of their time chasing data across tools. Managers had no visibility. Students had no single place to track their progress.</p>
+      <p>We built SMS ERP to collapse that operational overhead into a single, <strong>role-aware system</strong> that gives everyone exactly what they need — nothing more, nothing less. It's opinionated enough to work out of the box, and extensible enough to grow with your institution.</p>
+      <p>Today SMS ERP serves EdTech startups, coaching institutes, corporate training programs, and bootcamps across the world. The codebase is <strong>MIT-licensed and open source</strong> — because good infrastructure should be free.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="values-section">
+  <div class="values-header">
+    <div class="v-eyebrow">// What We Stand For</div>
+    <h2 class="v-title">Our Core <span class="grad">Values</span></h2>
+  </div>
+  <div class="values-grid">
+    <div class="value-card" style="--vc-color:#00e5ff">
+      <div class="vc-num">01</div>
+      <span class="vc-icon">🔭</span>
+      <div class="vc-title">Transparency First</div>
+      <div class="vc-desc">Every decision, every data point, every user action should be visible to the right people at the right time. Opacity kills operational efficiency.</div>
+    </div>
+    <div class="value-card" style="--vc-color:#00ffb2">
+      <div class="vc-num">02</div>
+      <span class="vc-icon">🧩</span>
+      <div class="vc-title">Role-Aware Design</div>
+      <div class="vc-desc">Every role sees only what they need. Not everything for everyone — that's noise. Focused, contextual interfaces make better operators.</div>
+    </div>
+    <div class="value-card" style="--vc-color:#a259ff">
+      <div class="vc-num">03</div>
+      <span class="vc-icon">⚡</span>
+      <div class="vc-title">Operational Speed</div>
+      <div class="vc-desc">Educators should spend time educating, not navigating slow software. Every feature must earn its place by reducing time-to-action.</div>
+    </div>
+    <div class="value-card" style="--vc-color:#ff7b00">
+      <div class="vc-num">04</div>
+      <span class="vc-icon">🔓</span>
+      <div class="vc-title">Open by Default</div>
+      <div class="vc-desc">MIT-licensed, developer-friendly, and built to be extended. Your institution's needs shouldn't be limited by our imagination.</div>
+    </div>
+    <div class="value-card" style="--vc-color:#ffe55c">
+      <div class="vc-num">05</div>
+      <span class="vc-icon">🛡️</span>
+      <div class="vc-title">Security Without Friction</div>
+      <div class="vc-desc">bcryptjs hashing, JWT auth, first-login enforcement, and status controls are baked in from day one — not bolted on after a breach.</div>
+    </div>
+    <div class="value-card" style="--vc-color:#ff2d6b">
+      <div class="vc-num">06</div>
+      <span class="vc-icon">🌍</span>
+      <div class="vc-title">Accessible Education</div>
+      <div class="vc-desc">Enterprise-grade infrastructure shouldn't be reserved for well-funded institutions. Good tooling should be accessible to any team that needs it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team-section">
+  <div class="team-header">
+    <div class="t-eyebrow">// The People</div>
+    <h2 class="t-title">Meet the <span class="grad">Team</span></h2>
+  </div>
+  <div class="team-grid">
+    <div class="team-card" style="--tc-color:#00e5ff">
+      <div class="tc-avatar">👨‍💻</div>
+      <div class="tc-name">Arjun Sharma</div>
+      <div class="tc-role">Founder & Lead Engineer</div>
+      <div class="tc-bio">Full-stack architect behind the Prisma schema and authentication system. Former bootcamp instructor turned platform builder.</div>
+    </div>
+    <div class="team-card" style="--tc-color:#00ffb2">
+      <div class="tc-avatar">👩‍🏫</div>
+      <div class="tc-name">Priya Nair</div>
+      <div class="tc-role">Head of Product</div>
+      <div class="tc-bio">Defines the role-based UX strategy. Spent 5 years as a mentor before joining to build tools she always wished existed.</div>
+    </div>
+    <div class="team-card" style="--tc-color:#a259ff">
+      <div class="tc-avatar">🧑‍🎨</div>
+      <div class="tc-name">Devon Walsh</div>
+      <div class="tc-role">Design Lead</div>
+      <div class="tc-bio">Creates the system's visual language. Believes educational software doesn't have to look like it was built in 2008.</div>
+    </div>
+    <div class="team-card" style="--tc-color:#ff7b00">
+      <div class="tc-avatar">👩‍💼</div>
+      <div class="tc-name">Fatima Al-Rashid</div>
+      <div class="tc-role">Operations Director</div>
+      <div class="tc-bio">Manages enterprise deployments and customer success. Ensures every institution that adopts SMS ERP succeeds with it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="timeline-section">
+  <div class="tl-header">
+    <div class="tl-eyebrow">// Product History</div>
+    <h2 class="tl-title">The <span class="grad">Roadmap</span></h2>
+  </div>
+  <div class="timeline">
+    <div class="tl-item" style="--tl-color:#6a8aab">
+      <div class="tl-dot">📝</div>
+      <div class="tl-content">
+        <div class="tl-year">Q1 2024 — Origin</div>
+        <div class="tl-event">Internal Tool for Cohort-01</div>
+        <div class="tl-desc">Built as a Google Sheets replacement for tracking 20 students across a 12-week bootcamp. First version had login, batch tracking, and basic mission statuses.</div>
+      </div>
+    </div>
+    <div class="tl-item" style="--tl-color:#6a8aab">
+      <div class="tl-dot">🚀</div>
+      <div class="tl-content">
+        <div class="tl-year">Q3 2024 — v0.5 Alpha</div>
+        <div class="tl-event">Role System & Mentor Dashboards</div>
+        <div class="tl-desc">Introduced the 6-role model, individual dashboards per role, and the student-mentor assignment junction. Prisma schema established as source of truth.</div>
+      </div>
+    </div>
+    <div class="tl-item" style="--tl-color:#00e5ff">
+      <div class="tl-dot">⚡</div>
+      <div class="tl-content">
+        <div class="tl-year">Q1 2025 — v1.0 Release</div>
+        <div class="tl-event">Open Source Launch on GitHub</div>
+        <div class="tl-desc">Full auth API, first-login enforcement, Cloudinary media integration, email notifications, and seed scripts shipped. MIT license published. 200+ GitHub stars in week one.</div>
+      </div>
+    </div>
+    <div class="tl-item" style="--tl-color:#00ffb2">
+      <div class="tl-dot">🌐</div>
+      <div class="tl-content">
+        <div class="tl-year">Q3 2025 — v1.5</div>
+        <div class="tl-event">Pro & Enterprise Plans Launched</div>
+        <div class="tl-desc">Managed hosting, dedicated infrastructure, SLA guarantees, and onboarding support introduced. First 50 paying institutions onboarded.</div>
+      </div>
+    </div>
+    <div class="tl-item" style="--tl-color:#a259ff">
+      <div class="tl-dot">🔮</div>
+      <div class="tl-content">
+        <div class="tl-year">2026 — v2.0 Current</div>
+        <div class="tl-event">Next.js 15 + React 19 Upgrade</div>
+        <div class="tl-desc">Full App Router migration, React 19 concurrent features, advanced analytics module, and a redesigned futuristic UI system. You're looking at it.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-corner tl"></div>
+  <div class="cta-corner tr"></div>
+  <div class="cta-corner bl"></div>
+  <div class="cta-corner br"></div>
+  <h2>Want to Be Part of <span class="grad">the Story?</span></h2>
+  <p>Join the platform, contribute to the codebase, or partner with us to bring SMS ERP to more institutions.</p>
+  <div class="cta-btns">
+    <a href="/auth/register" class="btn-primary">Get Started Free →</a>
+    <a href="/contact" class="btn-ghost">Talk to the Team</a>
+  </div>
+</div>
+
+<footer>
+  <p class="fc">© 2026 SMS ERP. All rights reserved.</p>
+  <div class="footer-status"><span class="dot"></span> All systems operational</div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.transform=`translate(${mx-6}px,${my-6}px)`;});
+  (function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.transform=`translate(${rx-20}px,${ry-20}px)`;requestAnimationFrame(animRing);})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ring.style.opacity='0';});
+    el.addEventListener('mouseleave',()=>{ring.style.opacity='0.45';});
+  });
+
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0) translateX(0)';}});},{threshold:0.1});
+  document.querySelectorAll('.value-card,.team-card,.tl-item').forEach((el,i)=>{
+    el.style.opacity='0';el.style.transform='translateY(24px)';
+    el.style.transition=`opacity 0.45s ${i*0.08}s ease,transform 0.45s ${i*0.08}s ease`;
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>

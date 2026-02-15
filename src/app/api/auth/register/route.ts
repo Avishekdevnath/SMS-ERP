@@ -5,6 +5,14 @@ import { UserRole } from '@prisma/client'
 
 export async function POST(req: NextRequest) {
   try {
+    const allowSelfRegistration = process.env.ALLOW_SELF_REGISTRATION === 'true'
+    if (!allowSelfRegistration) {
+      return NextResponse.json(
+        { error: 'Self-registration is disabled. Contact administrator.' },
+        { status: 403 }
+      )
+    }
+
     const { name, email, password, role } = await req.json()
 
     if (!name || !email || !password || !role) {

@@ -66,7 +66,7 @@ export default function Navbar() {
     if (!isAuthenticated) {
       return [
         { href: '/', label: 'Home' },
-        { href: '#features', label: 'Features' },
+        { href: '/features', label: 'Features' },
         { href: '/auth/login', label: 'Login' },
       ]
     }
@@ -223,12 +223,12 @@ export default function Navbar() {
               </>
             ) : (
               <div className="hidden md:flex items-center space-x-4">
-                <Link
+                {/* <Link
                   href="/auth/login"
                   className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Login
-                </Link>
+                </Link> */}
                 <Link
                   href="/auth/register"
                   className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
@@ -264,13 +264,13 @@ export default function Navbar() {
               ))}
               {!isAuthenticated && (
                 <div className="pt-4 space-y-2">
-                  <Link
+                  {/* <Link
                     href="/auth/login"
                     className="text-gray-700 hover:text-blue-600 block px-3 py-2 rounded-md text-base font-medium transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
-                  </Link>
+                  </Link> */}
                   <Link
                     href="/auth/register"
                     className="bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-blue-700 transition-colors"

@@ -7,16 +7,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useAuthStore } from '@/store/useAuthStore'
-import { 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock, 
-  Loader2,
-  ArrowLeft,
-  GraduationCap
-} from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import PasswordChangeModal from '@/components/PasswordChangeModal'
+import HomeEffects from '@/components/home/HomeEffects'
+import HomeNavbar from '@/components/home/HomeNavbar'
+import HomeFooter from '@/components/home/HomeFooter'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -30,8 +25,9 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false)
   const [currentUser, setCurrentUser] = useState<{ email: string } | null>(null)
+  const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
-  const { login, setError, clearError } = useAuthStore()
+  const { login, error, setError, clearError } = useAuthStore()
 
   const {
     register,
@@ -112,134 +108,140 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-            <GraduationCap className="h-6 w-6 text-white" />
+    <main className="sms-home slg-page">
+      <HomeEffects />
+      <HomeNavbar />
+
+      <div className="slg-layout">
+        <section className="slg-left">
+          <div className="slg-orb slg-orb-1" />
+          <div className="slg-orb slg-orb-2" />
+          <p className="slg-eyebrow">Secure Access Portal</p>
+          <h1>
+            Welcome Back to <span>SMS ERP</span>
+          </h1>
+          <p className="slg-desc">
+            Your unified command center for student management, mentoring, batch operations, and
+            mission tracking.
+          </p>
+          <div className="slg-pills">
+            <span>Student</span>
+            <span>Mentor</span>
+            <span>SRE</span>
+            <span>Manager</span>
+            <span>Developer</span>
+            <span>Admin</span>
           </div>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Enter your credentials to access the Student Management System
-        </p>
-      </div>
+          <div className="slg-note">
+            <p>
+              Session is encrypted end-to-end. Credentials are hashed with bcryptjs and never
+              stored in plain text.
+            </p>
+          </div>
+        </section>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  {...register('email')}
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your email"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
-              )}
+        <section className="slg-right">
+          <div className="slg-card">
+            <div className="slg-header">
+              <div className="slg-icon-wrap">ERP</div>
+              <h2>Sign In</h2>
+              <p>Enter your credentials to access the system</p>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  {...register('password')}
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+            {error ? (
+              <div className="slg-error">
+                <p>{error}</p>
               </div>
-              {errors.password && (
-                <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-              )}
-            </div>
+            ) : null}
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  'Sign in'
-                )}
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="slg-group">
+                <label htmlFor="email">Email Address</label>
+                <div className="slg-input-wrap">
+                  <Mail className="slg-input-icon" size={16} />
+                  <input
+                    {...register('email')}
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    className="slg-input"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+                {errors.email ? <p className="slg-field-error">{errors.email.message}</p> : null}
+              </div>
+
+              <div className="slg-group">
+                <label htmlFor="password">Password</label>
+                <div className="slg-input-wrap">
+                  <Lock className="slg-input-icon" size={16} />
+                  <input
+                    {...register('password')}
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    className="slg-input"
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="slg-toggle"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                {errors.password ? (
+                  <p className="slg-field-error">{errors.password.message}</p>
+                ) : null}
+              </div>
+
+              <div className="slg-options">
+                <label className="slg-remember">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                  />
+                  <span>Remember me</span>
+                </label>
+                <Link href="/auth/register" className="slg-link">
+                  Need access?
+                </Link>
+              </div>
+
+              <button type="submit" disabled={isLoading} className="slg-submit">
+                {isLoading ? 'Authenticating...' : 'Initialize Session'}
               </button>
-            </div>
-          </form>
+            </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Need help?</span>
-              </div>
+            <div className="slg-divider">
+              <span>Need help?</span>
             </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Contact your system administrator for access
+            <div className="slg-help">
+              <p>
+                Contact your administrator or <Link href="/auth/register">request an account</Link>
               </p>
             </div>
+
+            <Link href="/" className="slg-back">
+              Back to Home
+            </Link>
           </div>
-        </div>
+        </section>
       </div>
 
-      <div className="mt-8 text-center">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to home
-        </Link>
-      </div>
+      <HomeFooter />
 
-      {/* Password Change Modal */}
       <PasswordChangeModal
         isOpen={showPasswordChangeModal}
         onClose={() => setShowPasswordChangeModal(false)}
         onSubmit={handlePasswordChange}
         isLoading={isLoading}
       />
-    </div>
+    </main>
   )
-} 
+}

@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS ERP — Student Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #020916;
+      --bg2:       #050f1f;
+      --panel:     rgba(6, 20, 45, 0.85);
+      --cyan:      #00e5ff;
+      --cyan2:     #00b4d8;
+      --violet:    #7b2fff;
+      --violet2:   #a259ff;
+      --green:     #00ffb2;
+      --orange:    #ff7b00;
+      --red:       #ff2d6b;
+      --text:      #e8f4ff;
+      --muted:     #6a8aab;
+      --border:    rgba(0, 229, 255, 0.15);
+      --glow-c:    rgba(0,229,255,0.25);
+      --glow-v:    rgba(123,47,255,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom Cursor ───────────────────────────────── */
+    #cursor {
+      position: fixed; top: 0; left: 0;
+      width: 12px; height: 12px;
+      background: var(--cyan);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: screen;
+      transition: transform 0.1s ease;
+    }
+    #cursor-ring {
+      position: fixed; top: 0; left: 0;
+      width: 40px; height: 40px;
+      border: 1px solid var(--cyan);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.5;
+      transition: transform 0.15s ease, opacity 0.3s;
+    }
+
+    /* ── Grid background ─────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Scanline overlay ────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.04) 0px,
+        rgba(0,0,0,0.04) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; width: 100%;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      height: 72px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(2, 9, 22, 0.92);
+      backdrop-filter: blur(20px);
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .nav-logo .logo-icon {
+      width: 32px; height: 32px;
+      border: 2px solid var(--cyan);
+      display: grid; place-items: center;
+      font-size: 0.7rem;
+      clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%);
+    }
+
+    .nav-links {
+      display: flex; gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 0.8rem; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute;
+      bottom: -4px; left: 0; width: 0; height: 1px;
+      background: var(--cyan); transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-btn {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem; letter-spacing: 0.15em;
+      padding: 10px 24px;
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      text-decoration: none;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      transition: background 0.25s, color 0.25s;
+    }
+    .nav-btn:hover {
+      background: var(--cyan); color: var(--bg);
+    }
+
+    /* ── HERO ────────────────────────────────────────── */
+    .hero {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      overflow: hidden;
+    }
+
+    /* Glowing orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: var(--glow-v);
+      top: -100px; left: -150px;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: var(--glow-c);
+      bottom: -100px; right: -100px;
+      animation-delay: -6s;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: rgba(0,255,178,0.08);
+      top: 50%; left: 55%;
+      animation-delay: -3s;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem; letter-spacing: 0.3em;
+      color: var(--cyan); text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 8px 20px;
+      margin-bottom: 40px;
+      animation: fadeUp 0.8s ease forwards;
+      opacity: 0;
+    }
+    .hero-tag .dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      animation: fadeUp 0.8s 0.15s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-title .line1 { display: block; color: var(--text); }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--cyan), var(--violet2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      max-width: 560px;
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 24px auto 48px;
+      font-weight: 300;
+      animation: fadeUp 0.8s 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-ctas {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.45s ease forwards;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem; letter-spacing: 0.18em;
+      text-transform: uppercase; text-decoration: none;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      color: var(--bg);
+      font-weight: 700;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--glow-c);
+    }
+
+    .btn-secondary {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem; letter-spacing: 0.18em;
+      text-transform: uppercase; text-decoration: none;
+      padding: 15px 36px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.2);
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-block;
+    }
+    .btn-secondary:hover {
+      border-color: var(--cyan); color: var(--cyan);
+    }
+
+    /* Animated circuit lines */
+    .circuit-lines {
+      position: absolute; inset: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .circuit-lines svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      opacity: 0.07;
+    }
+
+    /* Stats under hero */
+    .hero-stats {
+      display: flex; gap: 60px; justify-content: center; flex-wrap: wrap;
+      margin-top: 80px;
+      animation: fadeUp 0.8s 0.6s ease forwards;
+      opacity: 0;
+      position: relative; z-index: 2;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat .value {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-stat .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* divider line between stats */
+    .hero-stat + .hero-stat {
+      padding-left: 60px;
+      border-left: 1px solid var(--border);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── ROLES SECTION ───────────────────────────────── */
+    .section {
+      position: relative; z-index: 2;
+      padding: 120px 48px;
+    }
+
+    .section-header {
+      text-align: center; margin-bottom: 80px;
+    }
+    .section-eyebrow {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem; letter-spacing: 0.35em;
+      color: var(--cyan); text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+    }
+    .section-title span {
+      background: linear-gradient(90deg, var(--cyan), var(--violet2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-sub {
+      margin-top: 16px; font-size: 1rem;
+      color: var(--muted); max-width: 480px; margin-left: auto; margin-right: auto;
+      line-height: 1.7;
+    }
+
+    /* Role cards */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .role-card {
+      background: var(--panel);
+      padding: 40px 36px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+      cursor: default;
+    }
+    .role-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--card-accent, var(--cyan)), transparent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .role-card:hover::before { transform: scaleX(1); }
+    .role-card:hover { background: rgba(6, 20, 45, 0.98); }
+
+    .role-card .card-number {
+      position: absolute; top: 20px; right: 24px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem; color: var(--border);
+      letter-spacing: 0.1em;
+    }
+    .role-card .card-icon {
+      width: 52px; height: 52px;
+      border: 1px solid var(--card-accent, var(--cyan));
+      display: grid; place-items: center;
+      margin-bottom: 24px;
+      font-size: 1.4rem;
+      color: var(--card-accent, var(--cyan));
+      clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+      background: rgba(0,0,0,0.3);
+      transition: background 0.3s;
+    }
+    .role-card:hover .card-icon {
+      background: rgba(var(--card-accent-rgb, 0,229,255), 0.1);
+    }
+
+    .role-card h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem; letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .role-card ul {
+      list-style: none;
+    }
+    .role-card li {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: center; gap: 10px;
+      line-height: 1.4;
+      transition: color 0.2s;
+    }
+    .role-card:hover li { color: rgba(232,244,255,0.8); }
+    .role-card li::before {
+      content: '';
+      width: 4px; height: 4px;
+      background: var(--card-accent, var(--cyan));
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .role-card li:last-child { border-bottom: none; }
+
+    /* ── SYSTEM OVERVIEW ─────────────────────────────── */
+    .overview-section {
+      position: relative; z-index: 2;
+      padding: 120px 48px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .overview-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+      align-items: center;
+    }
+
+    .overview-visual {
+      position: relative;
+    }
+
+    .system-map {
+      position: relative;
+      width: 100%; aspect-ratio: 1;
+      max-width: 440px;
+    }
+
+    .sys-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px; height: 100px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+      display: grid; place-items: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem; letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--bg);
+      text-align: center;
+      animation: rotateSlow 20s linear infinite;
+    }
+
+    @keyframes rotateSlow {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .sys-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px dashed var(--border);
+      animation: pulse-ring 4s ease-in-out infinite;
+    }
+    .sys-ring-1 { width: 180px; height: 180px; }
+    .sys-ring-2 { width: 300px; height: 300px; animation-delay: -2s; }
+    .sys-ring-3 { width: 420px; height: 420px; animation-delay: -1s; }
+
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+
+    .sys-node {
+      position: absolute;
+      width: 64px; height: 64px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+      display: grid; place-items: center;
+      font-size: 1.2rem;
+      transform: translate(-50%, -50%);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .sys-node:hover {
+      border-color: var(--cyan);
+      background: rgba(0,229,255,0.1);
+    }
+
+    /* Positions around ring */
+    .sys-node[data-pos="top"]    { top: 8%;  left: 50%; }
+    .sys-node[data-pos="tr"]     { top: 20%; left: 80%; }
+    .sys-node[data-pos="right"]  { top: 50%; left: 92%; }
+    .sys-node[data-pos="br"]     { top: 80%; left: 80%; }
+    .sys-node[data-pos="bottom"] { top: 92%; left: 50%; }
+    .sys-node[data-pos="bl"]     { top: 80%; left: 20%; }
+    .sys-node[data-pos="left"]   { top: 50%; left: 8%;  }
+    .sys-node[data-pos="tl"]     { top: 20%; left: 20%; }
+
+    .sys-node .node-label {
+      position: absolute;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      white-space: nowrap;
+      top: calc(100% + 6px);
+      left: 50%; transform: translateX(-50%);
+    }
+
+    /* Text side */
+    .overview-text h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+    .overview-text h2 span {
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .overview-text p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .feature-pills {
+      display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .pill {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem; letter-spacing: 0.12em;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      text-transform: uppercase;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .pill:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── TECH STACK ──────────────────────────────────── */
+    .tech-section {
+      position: relative; z-index: 2;
+      padding: 100px 48px;
+    }
+
+    .tech-grid {
+      display: flex; flex-wrap: wrap;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 900px; margin: 0 auto;
+    }
+
+    .tech-item {
+      flex: 1 1 140px;
+      background: var(--panel);
+      padding: 32px 24px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .tech-item:hover { background: rgba(0,229,255,0.06); }
+
+    .tech-item .tech-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .tech-item .tech-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem; letter-spacing: 0.12em;
+      color: var(--text); text-transform: uppercase;
+    }
+    .tech-item .tech-desc {
+      font-size: 0.7rem; color: var(--muted); line-height: 1.4;
+    }
+
+    /* ── API SECTION ─────────────────────────────────── */
+    .api-section {
+      position: relative; z-index: 2;
+      padding: 120px 48px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+
+    .api-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1100px; margin: 0 auto;
+    }
+
+    .api-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .api-card:hover { border-color: var(--cyan); }
+
+    .api-method {
+      display: inline-block;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem; letter-spacing: 0.1em;
+      padding: 4px 12px;
+      background: rgba(0,229,255,0.1);
+      color: var(--cyan);
+      border: 1px solid rgba(0,229,255,0.3);
+      margin-bottom: 16px;
+    }
+
+    .api-route {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+
+    .api-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .code-block {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: var(--cyan2);
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .code-block .key { color: var(--violet2); }
+    .code-block .str { color: var(--green); }
+    .code-block .num { color: var(--orange); }
+
+    /* ── CTA ─────────────────────────────────────────── */
+    .cta-section {
+      position: relative; z-index: 2;
+      padding: 140px 48px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(123,47,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .cta-title .line1 { display: block; color: var(--text); }
+    .cta-title .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--cyan), var(--violet2), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200%;
+      animation: gradientShift 4s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0%; }
+      50% { background-position: 100%; }
+    }
+
+    .cta-sub {
+      max-width: 500px; margin: 0 auto 48px;
+      font-size: 1rem; color: var(--muted); line-height: 1.7;
+    }
+
+    .cta-corner {
+      position: absolute;
+      width: 60px; height: 60px;
+      border-color: var(--cyan);
+      border-style: solid;
+      opacity: 0.3;
+    }
+    .cta-corner.tl { top: 40px; left: 60px; border-width: 2px 0 0 2px; }
+    .cta-corner.tr { top: 40px; right: 60px; border-width: 2px 2px 0 0; }
+    .cta-corner.bl { bottom: 40px; left: 60px; border-width: 0 0 2px 2px; }
+    .cta-corner.br { bottom: 40px; right: 60px; border-width: 0 2px 2px 0; }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 64px 48px 32px;
+      background: var(--bg);
+    }
+
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;
+    }
+
+    .footer-brand h3 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem; letter-spacing: 0.15em;
+      color: var(--cyan); margin-bottom: 16px;
+    }
+    .footer-brand p {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      color: var(--text); text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a {
+      font-size: 0.8rem; color: var(--muted);
+      text-decoration: none; transition: color 0.2s;
+      letter-spacing: 0.05em;
+    }
+    .footer-col a:hover { color: var(--cyan); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 48px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-bottom p {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem; letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+    .footer-status {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.6rem; letter-spacing: 0.12em; color: var(--green);
+    }
+    .footer-status .dot {
+      width: 6px; height: 6px;
+      background: var(--green); border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* ── Scroll indicator ────────────────────────────── */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      animation: fadeUp 0.8s 0.8s ease forwards; opacity: 0;
+      z-index: 2;
+    }
+    .scroll-indicator span {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.55rem; letter-spacing: 0.25em;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--cyan), transparent);
+      animation: scrollAnim 2s ease-in-out infinite;
+    }
+    @keyframes scrollAnim {
+      0%   { transform: scaleY(0); transform-origin: top; }
+      50%  { transform: scaleY(1); transform-origin: top; }
+      50.1%{ transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .section, .overview-section, .tech-section, .api-section { padding: 80px 20px; }
+      .overview-inner { grid-template-columns: 1fr; gap: 40px; }
+      .system-map { max-width: 300px; margin: 0 auto; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .hero-stat + .hero-stat { padding-left: 20px; }
+      .cta-section { padding: 100px 24px; }
+      .cta-corner { display: none; }
+    }
+
+    @media (max-width: 560px) {
+      .hero-stats { gap: 24px; }
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <div class="logo-icon">⬡</div>
+      SMS ERP
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Roles</a></li>
+      <li><a href="#system">System</a></li>
+      <li><a href="#api">API</a></li>
+      <li><a href="#tech">Stack</a></li>
+    </ul>
+    <a href="/auth/login" class="nav-btn">Launch App →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="circuit-lines">
+      <svg viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <path d="M0 400 H200 V200 H500 V350 H900 V150 H1200 V400 H1440" stroke="#00e5ff" stroke-width="1" fill="none" />
+        <path d="M0 600 H150 V500 H400 V650 H700 V450 H1000 V600 H1440" stroke="#7b2fff" stroke-width="1" fill="none" />
+        <circle cx="200" cy="200" r="4" fill="#00e5ff" />
+        <circle cx="500" cy="350" r="4" fill="#00e5ff" />
+        <circle cx="900" cy="150" r="4" fill="#00e5ff" />
+        <circle cx="1200" cy="400" r="4" fill="#00e5ff" />
+        <circle cx="400" cy="650" r="4" fill="#7b2fff" />
+        <circle cx="700" cy="450" r="4" fill="#7b2fff" />
+        <circle cx="1000" cy="600" r="4" fill="#7b2fff" />
+      </svg>
+    </div>
+
+    <div class="hero-tag">
+      <span class="dot"></span>
+      System Online — v2.0
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line1">Student Management</span>
+      <span class="line2">ERP Platform</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      A role-based operations hub for admissions, mentoring, batch management,
+      and mission tracking — built for the next generation of education.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="/auth/login" class="btn-primary">Get Started</a>
+      <a href="#features" class="btn-secondary">Explore Features</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="value">1000+</div>
+        <div class="label">Active Students</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value">50+</div>
+        <div class="label">Expert Mentors</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value">100+</div>
+        <div class="label">Missions Complete</div>
+      </div>
+      <div class="hero-stat">
+        <div class="value">95%</div>
+        <div class="label">Success Rate</div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ROLES SECTION -->
+  <section id="features" class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">// Access Control Matrix</div>
+      <h2 class="section-title">Engineered for <span>Every Role</span></h2>
+      <p class="section-sub">Six distinct operational modes, each with purpose-built tools and isolated workflows.</p>
+    </div>
+
+    <div class="roles-grid">
+
+      <!-- Student -->
+      <div class="role-card" style="--card-accent:#00e5ff; --card-accent-rgb:0,229,255;">
+        <span class="card-number">01</span>
+        <div class="card-icon">🎓</div>
+        <h3>Student</h3>
+        <ul>
+          <li>Track course progress and assignments</li>
+          <li>Access learning materials and resources</li>
+          <li>Communicate with mentors and peers</li>
+          <li>View grades and performance analytics</li>
+        </ul>
+      </div>
+
+      <!-- Mentor -->
+      <div class="role-card" style="--card-accent:#00ffb2; --card-accent-rgb:0,255,178;">
+        <span class="card-number">02</span>
+        <div class="card-icon">👨‍🏫</div>
+        <h3>Mentor</h3>
+        <ul>
+          <li>Manage student progress and feedback</li>
+          <li>Create and assign learning tasks</li>
+          <li>Schedule one-on-one sessions</li>
+          <li>Monitor student performance metrics</li>
+        </ul>
+      </div>
+
+      <!-- SRE -->
+      <div class="role-card" style="--card-accent:#a259ff; --card-accent-rgb:162,89,255;">
+        <span class="card-number">03</span>
+        <div class="card-icon">🎧</div>
+        <h3>SRE</h3>
+        <ul>
+          <li>Student relationship management</li>
+          <li>Handle student inquiries and support</li>
+          <li>Coordinate between students and mentors</li>
+          <li>Track student satisfaction and feedback</li>
+        </ul>
+      </div>
+
+      <!-- Manager -->
+      <div class="role-card" style="--card-accent:#ff7b00; --card-accent-rgb:255,123,0;">
+        <span class="card-number">04</span>
+        <div class="card-icon">📊</div>
+        <h3>Manager</h3>
+        <ul>
+          <li>Oversee program operations and strategy</li>
+          <li>Manage mentor assignments and workload</li>
+          <li>Generate reports and analytics</li>
+          <li>Monitor program performance and KPIs</li>
+        </ul>
+      </div>
+
+      <!-- Developer -->
+      <div class="role-card" style="--card-accent:#e8f4ff; --card-accent-rgb:232,244,255;">
+        <span class="card-number">05</span>
+        <div class="card-icon">⌨️</div>
+        <h3>Developer</h3>
+        <ul>
+          <li>System maintenance and updates</li>
+          <li>Technical support and troubleshooting</li>
+          <li>API integration and customization</li>
+          <li>Performance optimization and monitoring</li>
+        </ul>
+      </div>
+
+      <!-- Admin -->
+      <div class="role-card" style="--card-accent:#ff2d6b; --card-accent-rgb:255,45,107;">
+        <span class="card-number">06</span>
+        <div class="card-icon">🔐</div>
+        <h3>Admin</h3>
+        <ul>
+          <li>User management and permissions</li>
+          <li>System configuration and settings</li>
+          <li>Data backup and security management</li>
+          <li>Comprehensive system analytics</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SYSTEM OVERVIEW -->
+  <section id="system" class="overview-section">
+    <div class="overview-inner">
+
+      <div class="overview-visual">
+        <div class="system-map">
+          <div class="sys-ring sys-ring-3"></div>
+          <div class="sys-ring sys-ring-2"></div>
+          <div class="sys-ring sys-ring-1"></div>
+
+          <div class="sys-center">SMS<br>ERP</div>
+
+          <div class="sys-node" data-pos="top">🎓<span class="node-label">Student</span></div>
+          <div class="sys-node" data-pos="tr">👨‍🏫<span class="node-label">Mentor</span></div>
+          <div class="sys-node" data-pos="right">🎧<span class="node-label">SRE</span></div>
+          <div class="sys-node" data-pos="br">📊<span class="node-label">Manager</span></div>
+          <div class="sys-node" data-pos="bottom">⌨️<span class="node-label">Dev</span></div>
+          <div class="sys-node" data-pos="bl">🔐<span class="node-label">Admin</span></div>
+          <div class="sys-node" data-pos="left">📦<span class="node-label">Batch</span></div>
+          <div class="sys-node" data-pos="tl">🎯<span class="node-label">Mission</span></div>
+        </div>
+      </div>
+
+      <div class="overview-text">
+        <div class="section-eyebrow">// Architecture Overview</div>
+        <h2>One System.<br><span>Unified Intelligence.</span></h2>
+        <p>
+          SMS ERP centralizes your entire educational operation — from student onboarding
+          to mission completion — into a single, coherent system. Every role has a dedicated
+          workspace, every workflow is tracked, every connection is data-driven.
+        </p>
+        <p>
+          Built on Next.js App Router with MongoDB and Prisma, the platform scales from
+          a single cohort to thousands of concurrent students without friction.
+        </p>
+        <div class="feature-pills">
+          <span class="pill">Role-Based Access</span>
+          <span class="pill">First-Login Flow</span>
+          <span class="pill">Batch Management</span>
+          <span class="pill">Mission Tracking</span>
+          <span class="pill">JWT Auth</span>
+          <span class="pill">Cloudinary Media</span>
+          <span class="pill">Email Notify</span>
+          <span class="pill">Prisma ORM</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section id="tech" class="tech-section">
+    <div class="section-header">
+      <div class="section-eyebrow">// Technology Foundation</div>
+      <h2 class="section-title">Built on <span>Modern Stack</span></h2>
+    </div>
+
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-icon">⚡</div>
+        <div class="tech-name">Next.js 15</div>
+        <div class="tech-desc">App Router, SSR, API Routes</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">⚛️</div>
+        <div class="tech-name">React 19</div>
+        <div class="tech-desc">Latest concurrent features</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔷</div>
+        <div class="tech-name">TypeScript</div>
+        <div class="tech-desc">End-to-end type safety</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🍃</div>
+        <div class="tech-name">MongoDB</div>
+        <div class="tech-desc">Atlas-ready NoSQL database</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔺</div>
+        <div class="tech-name">Prisma ORM</div>
+        <div class="tech-desc">Schema-first data layer</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🎨</div>
+        <div class="tech-name">Tailwind CSS</div>
+        <div class="tech-desc">Utility-first styling</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🐻</div>
+        <div class="tech-name">Zustand</div>
+        <div class="tech-desc">Minimal global state</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">✅</div>
+        <div class="tech-name">Zod + RHF</div>
+        <div class="tech-desc">Validated form handling</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API SECTION -->
+  <section id="api" class="api-section">
+    <div class="section-header">
+      <div class="section-eyebrow">// REST Endpoints</div>
+      <h2 class="section-title">Authentication <span>API</span></h2>
+      <p class="section-sub">Three core endpoints handle the full auth lifecycle — registration, login, and credential rotation.</p>
+    </div>
+
+    <div class="api-cards">
+
+      <div class="api-card">
+        <span class="api-method">POST</span>
+        <div class="api-route">/api/auth/register</div>
+        <div class="api-desc">Create a new user account with validated role assignment and secure password hashing.</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"John Doe"</span>,<br>
+&nbsp;&nbsp;<span class="key">"email"</span>: <span class="str">"john@example.com"</span>,<br>
+&nbsp;&nbsp;<span class="key">"password"</span>: <span class="str">"StrongPass123!"</span>,<br>
+&nbsp;&nbsp;<span class="key">"role"</span>: <span class="str">"STUDENT"</span><br>
+}
+        </div>
+      </div>
+
+      <div class="api-card">
+        <span class="api-method">POST</span>
+        <div class="api-route">/api/auth/login</div>
+        <div class="api-desc">Authenticate with email + password. Returns user data and a <code style="color:var(--cyan);font-size:0.75rem;">firstLogin</code> flag for redirect logic.</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="key">"email"</span>: <span class="str">"john@example.com"</span>,<br>
+&nbsp;&nbsp;<span class="key">"password"</span>: <span class="str">"StrongPass123!"</span><br>
+}<br><br>
+<span style="color:var(--muted)">→ returns firstLogin: true/false</span>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <span class="api-method">POST</span>
+        <div class="api-route">/api/auth/change-password</div>
+        <div class="api-desc">Force first-login password reset or regular credential rotation. Sets <code style="color:var(--cyan);font-size:0.75rem;">firstLogin: false</code> on success.</div>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="key">"email"</span>: <span class="str">"john@example.com"</span>,<br>
+&nbsp;&nbsp;<span class="key">"currentPassword"</span>: <span class="str">"Old123!"</span>,<br>
+&nbsp;&nbsp;<span class="key">"newPassword"</span>: <span class="str">"New456!"</span><br>
+}
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-bg"></div>
+    <div class="cta-corner tl"></div>
+    <div class="cta-corner tr"></div>
+    <div class="cta-corner bl"></div>
+    <div class="cta-corner br"></div>
+
+    <h2 class="cta-title">
+      <span class="line1">Ready to Launch?</span>
+      <span class="line2">Transform Your Institution.</span>
+    </h2>
+    <p class="cta-sub">
+      Join thousands of students and mentors already operating on the platform.
+      Your next cohort is one click away.
+    </p>
+    <a href="/auth/register" class="btn-primary">Initialize Account →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h3>SMS ERP</h3>
+        <p>Empowering education through technology and innovation. Built for EdTech startups, institutes, bootcamps, and training teams.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">API Docs</a></li>
+          <li><a href="#">Documentation</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Status</a></li>
+          <li><a href="#">Community</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Student Management System. All rights reserved.</p>
+      <div class="footer-status">
+        <span class="dot"></span>
+        All systems operational
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.transform = `translate(${rx - 20}px, ${ry - 20}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform += ' scale(1.8)';
+        ring.style.opacity = '0';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.opacity = '0.5';
+      });
+    });
+
+    // Scroll-triggered fade in for cards
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.role-card, .api-card, .tech-item').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(30px)';
+      el.style.transition = `opacity 0.5s ${i * 0.07}s ease, transform 0.5s ${i * 0.07}s ease`;
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>

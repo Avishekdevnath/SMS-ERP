@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SMS ERP — Access Restricted</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Syne:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #020916;
+      --bg2:      #050f1f;
+      --panel:    rgba(6,20,45,0.90);
+      --cyan:     #00e5ff;
+      --violet:   #7b2fff;
+      --violet2:  #a259ff;
+      --green:    #00ffb2;
+      --red:      #ff2d6b;
+      --orange:   #ff7b00;
+      --yellow:   #ffe55c;
+      --text:     #e8f4ff;
+      --muted:    #6a8aab;
+      --border:   rgba(0,229,255,0.13);
+      --border2:  rgba(255,255,255,0.06);
+      --red-glow: rgba(255,45,107,0.15);
+    }
+
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    html { height:100%; }
+    body {
+      min-height:100vh; background:var(--bg);
+      color:var(--text); font-family:'Syne',sans-serif;
+      overflow-x:hidden; cursor:none;
+      display:flex; flex-direction:column;
+    }
+
+    /* Grid */
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.022) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,229,255,0.022) 1px,transparent 1px);
+      background-size:60px 60px; pointer-events:none; z-index:0;
+    }
+    /* Scanlines */
+    body::after {
+      content:''; position:fixed; inset:0;
+      background:repeating-linear-gradient(0deg,rgba(0,0,0,0.032) 0px,rgba(0,0,0,0.032) 1px,transparent 1px,transparent 3px);
+      pointer-events:none; z-index:1;
+    }
+
+    /* Cursor */
+    #cursor { position:fixed; width:12px; height:12px; background:var(--red); border-radius:50%; pointer-events:none; z-index:9999; mix-blend-mode:screen; transition:transform 0.1s; }
+    #cursor-ring { position:fixed; width:40px; height:40px; border:1px solid var(--red); border-radius:50%; pointer-events:none; z-index:9998; opacity:0.4; transition:opacity 0.3s; }
+
+    /* NAV */
+    nav {
+      position:fixed; top:0; width:100%; z-index:100;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 48px; height:72px;
+      border-bottom:1px solid var(--border);
+      background:rgba(2,9,22,0.92); backdrop-filter:blur(20px);
+    }
+    .nav-logo { font-family:'Orbitron',monospace; font-weight:900; font-size:1.05rem; letter-spacing:0.2em; color:var(--cyan); text-decoration:none; display:flex; align-items:center; gap:10px; }
+    .logo-icon { width:32px; height:32px; border:2px solid var(--cyan); display:grid; place-items:center; font-size:0.7rem; clip-path:polygon(10% 0%,90% 0%,100% 10%,100% 90%,90% 100%,10% 100%,0% 90%,0% 10%); }
+    .nav-links { display:flex; gap:32px; list-style:none; }
+    .nav-links a { text-decoration:none; color:var(--muted); font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; transition:color 0.2s; position:relative; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--cyan); transition:width 0.3s; }
+    .nav-links a:hover { color:var(--cyan); }
+    .nav-links a:hover::after { width:100%; }
+    .nav-btn { font-family:'Orbitron',monospace; font-size:0.7rem; letter-spacing:0.15em; padding:10px 24px; background:transparent; border:1px solid var(--cyan); color:var(--cyan); text-decoration:none; clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); transition:background 0.25s,color 0.25s; }
+    .nav-btn:hover { background:var(--cyan); color:var(--bg); }
+
+    /* MAIN */
+    .page-wrap {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      padding:120px 24px 60px; position:relative; z-index:2;
+      overflow:hidden;
+    }
+
+    /* BG ambience orbs */
+    .orb { position:absolute; border-radius:50%; filter:blur(120px); pointer-events:none; }
+    .orb-1 { width:500px; height:500px; background:rgba(255,45,107,0.1); top:-100px; left:-100px; animation:driftA 14s ease-in-out infinite alternate; }
+    .orb-2 { width:400px; height:400px; background:rgba(123,47,255,0.1); bottom:-80px; right:-80px; animation:driftB 10s ease-in-out infinite alternate; }
+    .orb-3 { width:250px; height:250px; background:rgba(0,229,255,0.05); top:50%; left:60%; animation:driftA 8s ease-in-out infinite alternate; }
+
+    @keyframes driftA { from{transform:translate(0,0);} to{transform:translate(30px,40px);} }
+    @keyframes driftB { from{transform:translate(0,0);} to{transform:translate(-30px,-20px);} }
+
+    /* Diagonal stripes behind card */
+    .stripe-bg {
+      position:absolute; inset:0; pointer-events:none; overflow:hidden; opacity:0.03;
+    }
+    .stripe-bg svg { width:100%; height:100%; }
+
+    /* MAIN CARD */
+    .card-outer {
+      width:100%; max-width:680px;
+      position:relative;
+      animation:riseIn 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity:0;
+    }
+    @keyframes riseIn {
+      from { opacity:0; transform:translateY(40px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* Animated border glow */
+    .card-outer::before {
+      content:''; position:absolute; inset:-1px;
+      background:linear-gradient(135deg,var(--red),transparent 40%,transparent 60%,var(--violet));
+      opacity:0.5; z-index:-1;
+      animation:borderPulse 4s ease-in-out infinite alternate;
+    }
+    @keyframes borderPulse {
+      from { opacity:0.3; }
+      to   { opacity:0.7; }
+    }
+
+    .card {
+      background:var(--panel);
+      border:1px solid rgba(255,45,107,0.25);
+      backdrop-filter:blur(24px);
+      overflow:hidden;
+      position:relative;
+    }
+
+    /* Top status bar */
+    .status-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 28px;
+      background:rgba(255,45,107,0.06);
+      border-bottom:1px solid rgba(255,45,107,0.15);
+    }
+    .sb-left {
+      display:flex; align-items:center; gap:10px;
+      font-family:'Orbitron',monospace; font-size:0.55rem;
+      letter-spacing:0.2em; text-transform:uppercase; color:var(--red);
+    }
+    .sb-dot {
+      width:7px; height:7px; background:var(--red); border-radius:50%;
+      animation:blinkRed 1.2s steps(1) infinite;
+    }
+    @keyframes blinkRed { 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+    .sb-right {
+      font-family:'Orbitron',monospace; font-size:0.5rem;
+      letter-spacing:0.15em; color:var(--muted); text-transform:uppercase;
+    }
+
+    /* Card body */
+    .card-body { padding:52px 52px 44px; }
+
+    /* Lock icon */
+    .lock-wrap {
+      display:flex; justify-content:center; margin-bottom:36px;
+      position:relative;
+    }
+    .lock-icon {
+      width:88px; height:88px;
+      display:grid; place-items:center;
+      position:relative; font-size:2.2rem;
+      clip-path:polygon(10px 0%,calc(100% - 10px) 0%,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0% calc(100% - 10px),0% 10px);
+      background:rgba(255,45,107,0.08);
+      border:1px solid rgba(255,45,107,0.3);
+    }
+    /* Pulsing rings around lock */
+    .lock-ring {
+      position:absolute; border-radius:50%;
+      border:1px solid rgba(255,45,107,0.2);
+      animation:lockPulse 2.5s ease-out infinite;
+    }
+    .lock-ring:nth-child(2) { width:120px; height:120px; animation-delay:0s; }
+    .lock-ring:nth-child(3) { width:150px; height:150px; animation-delay:0.6s; }
+    .lock-ring:nth-child(4) { width:180px; height:180px; animation-delay:1.2s; }
+    @keyframes lockPulse {
+      0%   { opacity:0.6; transform:scale(0.9); }
+      100% { opacity:0;   transform:scale(1.1); }
+    }
+
+    /* Titles */
+    .restricted-label {
+      text-align:center; margin-bottom:12px;
+    }
+    .rl-eyebrow {
+      font-family:'Orbitron',monospace; font-size:0.6rem;
+      letter-spacing:0.35em; color:var(--red); text-transform:uppercase;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 20px;
+      border:1px solid rgba(255,45,107,0.25);
+      background:rgba(255,45,107,0.05);
+      margin-bottom:20px;
+    }
+    .rl-eyebrow .ey-dot { width:5px; height:5px; background:var(--red); border-radius:50%; animation:blinkRed 1.2s steps(1) infinite; }
+
+    .main-title {
+      text-align:center;
+      font-family:'Orbitron',monospace; font-weight:900;
+      font-size:clamp(1.6rem,4vw,2.6rem);
+      line-height:1.1; margin-bottom:10px;
+      color:var(--text);
+    }
+    .main-subtitle {
+      text-align:center;
+      font-size:0.9rem; color:var(--muted); line-height:1.65;
+      max-width:480px; margin:0 auto 40px;
+    }
+
+    /* Divider */
+    .divider {
+      height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,45,107,0.3),rgba(106,138,171,0.2),transparent);
+      margin:0 0 40px;
+    }
+
+    /* Info panels */
+    .info-panels { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:36px; }
+
+    .info-panel {
+      background:rgba(0,0,0,0.3); border:1px solid var(--border2);
+      padding:24px 22px; position:relative; overflow:hidden;
+      transition:border-color 0.25s, background 0.25s;
+    }
+    .info-panel:hover { border-color:var(--ip-color,var(--border)); background:rgba(0,0,0,0.45); }
+
+    .info-panel::before {
+      content:''; position:absolute; top:0; left:0;
+      width:2px; height:100%;
+      background:var(--ip-color, var(--cyan));
+      opacity:0.6;
+    }
+
+    .ip-header {
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:12px;
+    }
+    .ip-icon {
+      width:34px; height:34px; font-size:0.95rem;
+      display:grid; place-items:center;
+      border:1px solid var(--border2);
+      flex-shrink:0;
+      clip-path:polygon(5px 0%,calc(100% - 5px) 0%,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0% calc(100% - 5px),0% 5px);
+      background:rgba(0,0,0,0.3);
+    }
+    .ip-label {
+      font-family:'Orbitron',monospace; font-size:0.62rem;
+      letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--ip-color,var(--muted));
+    }
+
+    .ip-text { font-size:0.8rem; color:var(--muted); line-height:1.65; }
+    .ip-text strong { color:var(--text); font-weight:500; }
+
+    /* Breadcrumb notice strip */
+    .notice-strip {
+      background:rgba(255,229,92,0.04);
+      border:1px solid rgba(255,229,92,0.15);
+      padding:16px 20px;
+      display:flex; align-items:flex-start; gap:14px;
+      margin-bottom:36px;
+    }
+    .ns-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+    .ns-body p { font-size:0.8rem; color:var(--muted); line-height:1.65; }
+    .ns-body strong { color:var(--yellow); font-weight:500; }
+
+    /* Terminal log */
+    .terminal {
+      background:rgba(0,0,0,0.5); border:1px solid var(--border2);
+      padding:20px 22px; margin-bottom:36px;
+      font-family:'Courier New',monospace;
+      position:relative; overflow:hidden;
+    }
+    .terminal::before {
+      content:'ACCESS LOG'; position:absolute; top:12px; right:16px;
+      font-family:'Orbitron',monospace; font-size:0.48rem;
+      letter-spacing:0.15em; color:rgba(106,138,171,0.4);
+    }
+    .term-line { font-size:0.72rem; margin-bottom:6px; display:flex; gap:12px; }
+    .term-line:last-child { margin-bottom:0; }
+    .term-ts { color:rgba(106,138,171,0.5); flex-shrink:0; }
+    .term-msg { }
+    .term-msg.err { color:var(--red); }
+    .term-msg.warn { color:var(--orange); }
+    .term-msg.info { color:var(--muted); }
+    .term-msg.sys { color:var(--cyan); }
+
+    /* Cursor blink in terminal */
+    .term-cursor {
+      display:inline-block; width:8px; height:1em;
+      background:var(--cyan); vertical-align:text-bottom;
+      animation:blinkCursor 1s steps(1) infinite;
+    }
+    @keyframes blinkCursor { 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+    /* Action buttons */
+    .action-row {
+      display:grid; grid-template-columns:1.4fr 1fr; gap:14px;
+      margin-bottom:24px;
+    }
+
+    .btn-primary {
+      font-family:'Orbitron',monospace; font-size:0.72rem;
+      letter-spacing:0.15em; text-transform:uppercase; text-decoration:none;
+      padding:16px; background:linear-gradient(135deg,var(--cyan),var(--violet));
+      color:var(--bg); font-weight:700; border:none; cursor:pointer;
+      clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+      display:block; text-align:center;
+      transition:opacity 0.2s,transform 0.2s; position:relative; overflow:hidden;
+    }
+    .btn-primary::before { content:''; position:absolute; top:-50%; left:-60%; width:40%; height:200%; background:rgba(255,255,255,0.15); transform:skewX(-20deg); transition:left 0.5s; }
+    .btn-primary:hover::before { left:120%; }
+    .btn-primary:hover { opacity:0.9; transform:translateY(-1px); }
+
+    .btn-outline {
+      font-family:'Orbitron',monospace; font-size:0.68rem;
+      letter-spacing:0.15em; text-transform:uppercase; text-decoration:none;
+      padding:15px; background:transparent;
+      border:1px solid var(--border); color:var(--muted);
+      clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+      display:block; text-align:center;
+      transition:border-color 0.2s,color 0.2s;
+    }
+    .btn-outline:hover { border-color:var(--cyan); color:var(--cyan); }
+
+    /* Footer note */
+    .card-footer-note {
+      text-align:center;
+      font-size:0.75rem; color:var(--muted); line-height:1.6;
+    }
+    .card-footer-note a {
+      color:var(--cyan); text-decoration:none;
+      transition:opacity 0.2s;
+    }
+    .card-footer-note a:hover { opacity:0.7; }
+
+    /* BOTTOM FOOTER */
+    footer {
+      position:relative; z-index:2;
+      border-top:1px solid var(--border);
+      padding:20px 48px;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:10px;
+    }
+    footer .fc { font-family:'Orbitron',monospace; font-size:0.58rem; letter-spacing:0.15em; color:var(--muted); }
+    .footer-status { display:flex; align-items:center; gap:8px; font-family:'Orbitron',monospace; font-size:0.58rem; letter-spacing:0.1em; color:var(--red); }
+    .footer-status .dot { width:6px; height:6px; background:var(--red); border-radius:50%; animation:blinkRed 1.2s steps(1) infinite; }
+
+    /* Animated grid corners on card */
+    .corner { position:absolute; width:20px; height:20px; border-color:rgba(255,45,107,0.4); border-style:solid; }
+    .corner.tl { top:0; left:0; border-width:2px 0 0 2px; }
+    .corner.tr { top:0; right:0; border-width:2px 2px 0 0; }
+    .corner.bl { bottom:0; left:0; border-width:0 0 2px 2px; }
+    .corner.br { bottom:0; right:0; border-width:0 2px 2px 0; }
+
+    /* Glitch animation on title */
+    .glitch {
+      position:relative; display:inline-block;
+    }
+    .glitch::before,.glitch::after {
+      content:attr(data-text); position:absolute;
+      top:0; left:0; width:100%; height:100%;
+      background:transparent;
+    }
+    .glitch::before {
+      left:2px; text-shadow:-2px 0 var(--red);
+      animation:glitch1 3s infinite linear;
+      clip-path:polygon(0 20%,100% 20%,100% 35%,0 35%);
+    }
+    .glitch::after {
+      left:-2px; text-shadow:2px 0 var(--cyan);
+      animation:glitch2 3s infinite linear;
+      clip-path:polygon(0 65%,100% 65%,100% 80%,0 80%);
+    }
+    @keyframes glitch1 {
+      0%,90%,100% { transform:translate(0); opacity:0; }
+      92%,94%     { transform:translate(-3px,1px); opacity:1; }
+      93%         { transform:translate(3px,-1px); opacity:1; }
+    }
+    @keyframes glitch2 {
+      0%,90%,100% { transform:translate(0); opacity:0; }
+      92%,94%     { transform:translate(3px,-1px); opacity:1; }
+      93%         { transform:translate(-3px,1px); opacity:1; }
+    }
+
+    @media (max-width:700px) {
+      nav { padding:0 20px; }
+      .nav-links { display:none; }
+      .card-body { padding:36px 24px 32px; }
+      .info-panels { grid-template-columns:1fr; }
+      .action-row { grid-template-columns:1fr; }
+      .status-bar { padding:10px 20px; }
+      footer { padding:16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="logo-icon">⬡</div>
+    SMS ERP
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/features">Features</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+  <a href="/auth/login" class="nav-btn">Login →</a>
+</nav>
+
+<!-- MAIN -->
+<div class="page-wrap">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="stripe-bg">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="diag" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="1" height="40" fill="#ff2d6b"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#diag)"/>
+    </svg>
+  </div>
+
+  <div class="card-outer">
+    <div class="card">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <div class="sb-left">
+          <span class="sb-dot"></span>
+          Access Denied — Closed System
+        </div>
+        <div class="sb-right">ERR_AUTH_403 · localhost:3000/auth/register</div>
+      </div>
+
+      <div class="card-body">
+
+        <!-- Lock icon + rings -->
+        <div class="lock-wrap">
+          <div class="lock-ring"></div>
+          <div class="lock-ring"></div>
+          <div class="lock-ring"></div>
+          <div class="lock-icon">🔒</div>
+        </div>
+
+        <!-- Label + Title -->
+        <div class="restricted-label">
+          <div class="rl-eyebrow">
+            <span class="ey-dot"></span>
+            Closed System
+          </div>
+          <h1 class="main-title">
+            <span class="glitch" data-text="Access Restricted">Access Restricted</span>
+          </h1>
+          <p class="main-subtitle">
+            This is a <strong style="color:var(--text)">private Student Management System</strong>.
+            User registration is not open to the public — accounts are provisioned directly by system administrators.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Info panels -->
+        <div class="info-panels">
+          <div class="info-panel" style="--ip-color:var(--red)">
+            <div class="ip-header">
+              <div class="ip-icon">🚫</div>
+              <div class="ip-label">Self-Registration</div>
+            </div>
+            <p class="ip-text">
+              Public sign-up is <strong>disabled</strong> on this system. Only pre-approved users with fixed accounts may access the platform.
+            </p>
+          </div>
+          <div class="info-panel" style="--ip-color:var(--yellow)">
+            <div class="ip-header">
+              <div class="ip-icon">🔑</div>
+              <div class="ip-label">First Time Login?</div>
+            </div>
+            <p class="ip-text">
+              If you've received credentials via email, you'll be <strong>required to change your password</strong> on first login for security.
+            </p>
+          </div>
+          <div class="info-panel" style="--ip-color:var(--cyan)">
+            <div class="ip-header">
+              <div class="ip-icon">📧</div>
+              <div class="ip-label">Request Access</div>
+            </div>
+            <p class="ip-text">
+              Believe you should have access? Contact your <strong>system administrator</strong> to request account provisioning.
+            </p>
+          </div>
+          <div class="info-panel" style="--ip-color:var(--green)">
+            <div class="ip-header">
+              <div class="ip-icon">🛡️</div>
+              <div class="ip-label">Security Policy</div>
+            </div>
+            <p class="ip-text">
+              All accounts are hashed with <strong>bcryptjs</strong>. Admins can set roles, manage status, and audit access at any time.
+            </p>
+          </div>
+        </div>
+
+        <!-- First-login notice -->
+        <div class="notice-strip">
+          <div class="ns-icon">⚡</div>
+          <div class="ns-body">
+            <p>
+              <strong>Have your credentials?</strong> Head to the login page. If this is your first time,
+              the system will automatically prompt you to set a new secure password before granting access
+              to your role dashboard.
+            </p>
+          </div>
+        </div>
+
+        <!-- Terminal log -->
+        <div class="terminal">
+          <div class="term-line"><span class="term-ts">2026-02-16 14:32:01</span><span class="term-msg sys">[ SYS ]  SMS ERP auth module initialized</span></div>
+          <div class="term-line"><span class="term-ts">2026-02-16 14:32:01</span><span class="term-msg info">[ INFO ] Registration endpoint: DISABLED</span></div>
+          <div class="term-line"><span class="term-ts">2026-02-16 14:32:02</span><span class="term-msg warn">[ WARN ] Self-registration is blocked by system policy</span></div>
+          <div class="term-line"><span class="term-ts">2026-02-16 14:32:02</span><span class="term-msg err">[ ERR  ] Access attempt at /auth/register → 403 FORBIDDEN</span></div>
+          <div class="term-line"><span class="term-ts">2026-02-16 14:32:03</span><span class="term-msg info">[ INFO ] Contact admin to provision account &nbsp;<span class="term-cursor"></span></span></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-row">
+          <a href="/auth/login" class="btn-primary">→ Go to Login</a>
+          <a href="/contact" class="btn-outline">Contact Admin</a>
+        </div>
+
+        <p class="card-footer-note">
+          Need help? <a href="/contact">Contact your system administrator</a> or visit the
+          <a href="/">home page</a> for more information about this platform.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p class="fc">© 2026 SMS ERP. All rights reserved.</p>
+  <div class="footer-status">
+    <span class="dot"></span>
+    Registration: Restricted
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cursor.style.transform = `translate(${mx-6}px,${my-6}px)`;
+  });
+  (function animRing(){
+    rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12;
+    ring.style.transform=`translate(${rx-20}px,${ry-20}px)`;
+    requestAnimationFrame(animRing);
+  })();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{ring.style.opacity='0';});
+    el.addEventListener('mouseleave',()=>{ring.style.opacity='0.4';});
+  });
+
+  // Typewriter effect for terminal — add a new log line after a delay
+  const termLines = [
+    { ts:'2026-02-16 14:32:04', cls:'warn', msg:'[ WARN ] Unauthorized registration attempt logged' },
+    { ts:'2026-02-16 14:32:05', cls:'sys',  msg:'[ SYS ]  System secure — awaiting authorized user' },
+  ];
+  let idx=0;
+  const terminal = document.querySelector('.terminal');
+
+  function addTermLine() {
+    if(idx >= termLines.length) return;
+    const {ts, cls, msg} = termLines[idx++];
+    // Remove cursor from last line
+    const prev = terminal.querySelector('.term-cursor');
+    if(prev) prev.remove();
+
+    const div = document.createElement('div');
+    div.className='term-line';
+    div.style.opacity='0';
+    div.style.transition='opacity 0.4s';
+    div.innerHTML=`<span class="term-ts">${ts}</span><span class="term-msg ${cls}">${msg} <span class="term-cursor"></span></span>`;
+    terminal.appendChild(div);
+    requestAnimationFrame(()=>{ div.style.opacity='1'; });
+    setTimeout(addTermLine, 2800);
+  }
+  setTimeout(addTermLine, 2000);
+
+  // Scroll reveal on info panels
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}
+    });
+  },{threshold:0.1});
+  document.querySelectorAll('.info-panel').forEach((el,i)=>{
+    el.style.opacity='0'; el.style.transform='translateY(16px)';
+    el.style.transition=`opacity 0.4s ${i*0.08}s ease,transform 0.4s ${i*0.08}s ease`;
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>
