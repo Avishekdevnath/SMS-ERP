@@ -68,11 +68,181 @@ sms-erp/
   package.json
 ```
 
-## API Endpoints (Current)
+## API Routes (Detailed)
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/change-password`
+Base path: `/api`
+
+### 1) Register User
+
+- Method: `POST`
+- Route: `/api/auth/register`
+- Purpose: Create a new user account with role-based access.
+
+Request body:
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "StrongPassword123!",
+  "role": "STUDENT"
+}
+```
+
+Success response (`201`):
+
+```json
+{
+  "user": {
+    "id": "USER_ID",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "STUDENT",
+    "status": "ACTIVE",
+    "firstLogin": true,
+    "createdAt": "2026-02-15T12:00:00.000Z",
+    "updatedAt": "2026-02-15T12:00:00.000Z"
+  }
+}
+```
+
+Common errors:
+
+- `400` Missing required fields / invalid role
+- `409` User already exists
+- `500` Registration failed
+
+### 2) Login
+
+- Method: `POST`
+- Route: `/api/auth/login`
+- Purpose: Authenticate user with email + password.
+
+Request body:
+
+```json
+{
+  "email": "john@example.com",
+  "password": "StrongPassword123!"
+}
+```
+
+Success response (`200`):
+
+```json
+{
+  "user": {
+    "id": "USER_ID",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "STUDENT",
+    "status": "ACTIVE",
+    "firstLogin": true,
+    "createdAt": "2026-02-15T12:00:00.000Z",
+    "updatedAt": "2026-02-15T12:00:00.000Z"
+  },
+  "firstLogin": true
+}
+```
+
+Common errors:
+
+- `400` Email and password are required
+- `401` Invalid credentials / inactive account
+- `500` Internal server error
+
+### 3) Change Password
+
+- Method: `POST`
+- Route: `/api/auth/change-password`
+- Purpose: Force first-time password update or regular password change.
+
+Request body:
+
+```json
+{
+  "email": "john@example.com",
+  "currentPassword": "OldPassword123!",
+  "newPassword": "NewStrongPassword123!"
+}
+```
+
+Success response (`200`):
+
+```json
+{
+  "message": "Password changed successfully",
+  "user": {
+    "id": "USER_ID",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "STUDENT",
+    "status": "ACTIVE",
+    "firstLogin": false,
+    "createdAt": "2026-02-15T12:00:00.000Z",
+    "updatedAt": "2026-02-15T12:10:00.000Z"
+  }
+}
+```
+
+Common errors:
+
+- `400` Missing required fields
+- `401` Current password incorrect
+- `404` User not found
+- `500` Internal server error
+
+## Feature Explanations
+
+### Authentication and Access Control
+
+- Registration with role validation
+- Secure password hashing (`bcryptjs`)
+- Login with credential verification
+- First-login password-change enforcement
+- User status checks (`ACTIVE`, `BANNED`, `DELISTED`, `INACTIVE`)
+
+### Role-Based Product Experience
+
+- Dedicated dashboard routes for:
+- `ADMIN`
+- `MANAGER`
+- `DEVELOPER`
+- `SRE`
+- `MENTOR`
+- `STUDENT`
+- Context-specific views and workflows by role
+
+### Student Lifecycle and Mentorship Data Model
+
+- User identity + role model
+- Student, Mentor, and SRE profile extensions
+- Batch management with lifecycle statuses
+- Mission tracking under batches
+- Junction relations:
+- Student-Batch mapping
+- Student-Mission mapping
+- Mission-Mentor assignment
+
+### Frontend UX Foundation
+
+- App Router architecture with modular pages
+- Typed form handling with `react-hook-form` + `zod`
+- Global state management with Zustand
+- Reusable components and utility-first styling
+
+### Integrations Ready
+
+- Cloudinary env-driven configuration for media uploads
+- Email env-driven configuration for operational notifications
+- External API placeholders for future integrations
+
+### Developer Experience
+
+- Type-safe codebase with TypeScript
+- Prisma schema as single source of truth for data
+- Linting and production build validation via npm scripts
+- Seed script for rapid local/demo data bootstrapping
 
 ## Prerequisites
 
