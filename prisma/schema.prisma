@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// User Roles Enum
+enum UserRole {
+  ADMIN
+  DEVELOPER
+  MANAGER
+  SRE
+  MENTOR
+  STUDENT
+}
+
+// User Status Enum
+enum UserStatus {
+  ACTIVE
+  BANNED
+  DELISTED
+  INACTIVE
+}
+
+// Batch Status Enum
+enum BatchStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+  DRAFT
+}
+
+// Mission Status Enum
+enum MissionStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  DRAFT
+}
+
+// User Model
+model User {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  email     String     @unique
+  name      String
+  password  String
+  role      UserRole
+  status    UserStatus @default(ACTIVE)
+  firstLogin Boolean   @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  studentProfile StudentProfile?
+  mentorProfile  MentorProfile?
+  sreProfile     SREProfile?
+
+  @@map("users")
+}
+
+// Student Profile Model
+model StudentProfile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  phone     String?
+  address   String?
+  emergencyContact String?
+  enrollmentDate DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  batches   StudentBatch[]
+  missions  StudentMission[]
+
+  @@map("student_profiles")
+}
+
+// Mentor Profile Model
+model MentorProfile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  phone     String?
+  expertise String[]
+  bio       String?
+  availability String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  missions  MissionMentor[]
+
+  @@map("mentor_profiles")
+}
+
+// SRE Profile Model
+model SREProfile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  phone     String?
+  department String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("sre_profiles")
+}
+
+// Batch Model
+model Batch {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  code        String      @unique
+  description String?
+  status      BatchStatus @default(ACTIVE)
+  startDate   DateTime
+  endDate     DateTime?
+  maxStudents Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  missions    Mission[]
+  students    StudentBatch[]
+
+  @@map("batches")
+}
+
+// Mission Model
+model Mission {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  batchId     String        @db.ObjectId
+  status      MissionStatus @default(ACTIVE)
+  startDate   DateTime?
+  endDate     DateTime?
+  maxStudents Int?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  batch       Batch         @relation(fields: [batchId], references: [id])
+  students    StudentMission[]
+  mentors     MissionMentor[]
+
+  @@map("missions")
+}
+
+// Junction Table: Student-Batch Relationship
+model StudentBatch {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String   @db.ObjectId
+  batchId   String   @db.ObjectId
+  joinedAt  DateTime @default(now())
+  status    String   @default("ACTIVE") // ACTIVE, LEFT, TRANSFERRED
+
+  // Relations
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  batch     Batch         @relation(fields: [batchId], references: [id])
+
+  @@unique([studentId, batchId])
+  @@map("student_batches")
+}
+
+// Junction Table: Student-Mission Relationship
+model StudentMission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentId String   @db.ObjectId
+  missionId String   @db.ObjectId
+  joinedAt  DateTime @default(now())
+  status    String   @default("ACTIVE") // ACTIVE, COMPLETED, DROPPED
+
+  // Relations
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  mission   Mission       @relation(fields: [missionId], references: [id])
+
+  @@unique([studentId, missionId])
+  @@map("student_missions")
+}
+
+// Junction Table: Mission-Mentor Relationship
+model MissionMentor {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  missionId String   @db.ObjectId
+  mentorId  String   @db.ObjectId
+  assignedAt DateTime @default(now())
+  status    String   @default("ACTIVE") // ACTIVE, INACTIVE
+
+  // Relations
+  mission   Mission       @relation(fields: [missionId], references: [id])
+  mentor    MentorProfile @relation(fields: [mentorId], references: [id])
+
+  @@unique([missionId, mentorId])
+  @@map("mission_mentors")
+}
