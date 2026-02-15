@@ -1,158 +1,240 @@
-# Student Management System (SMS) - Next.js
+# SMS ERP - Student Management ERP Platform
 
-A comprehensive mentorship-focused Student Management System built with Next.js 15, TypeScript, and MongoDB.
+SMS ERP is a modern, role-based Student Management ERP built with Next.js, TypeScript, MongoDB, and Prisma. It helps institutes and training teams run admissions, mentoring, batch operations, mission tracking, and stakeholder dashboards from one system.
 
-## 🚀 Phase 1: Project Foundation (COMPLETED)
+This repository is designed for teams that need a production-ready foundation for an education CRM/ERP with clean architecture, secure authentication flows, and scalable API patterns.
 
-### ✅ What's Been Set Up
+## Why SMS ERP
 
-**Core Technologies:**
-- Next.js 15.3.3 with App Router
-- TypeScript for type safety
-- Tailwind CSS for styling
-- ESLint for code quality
-- MongoDB with Prisma ORM
+SMS ERP is focused on real operational needs:
 
-**Dependencies Installed:**
-- `zustand` - State management
-- `next-auth` - Authentication
-- `prisma` - Database ORM
-- `zod` - Schema validation
-- `react-hook-form` - Form handling
-- `recharts` - Data visualization
-- `lucide-react` - Icons
-- `clsx` & `tailwind-merge` - Utility classes
+- Centralized user and role management for `ADMIN`, `MANAGER`, `DEVELOPER`, `SRE`, `MENTOR`, and `STUDENT`
+- Structured academic delivery through batches and missions
+- Role-specific dashboard experiences
+- Secure credential-based authentication APIs
+- MongoDB data model with Prisma for maintainability and speed
 
-### 📁 Project Structure
+If you are looking for a **Student Management System**, **Education ERP**, **Mentorship Management Platform**, or **Training Operations Dashboard**, this project gives you a strong starting point.
 
+## Core Features
+
+- Role-based user model with status tracking
+- Authentication APIs (`register`, `login`, `change-password`)
+- First-login password update flow
+- Modular service layer via `src/lib`
+- Prisma schema for users, profiles, batches, missions, and junction relationships
+- Dashboard routes for each role
+- Cloudinary-ready configuration for media workflows
+- Email configuration layer for notification workflows
+
+## Tech Stack
+
+- Next.js 15 (App Router)
+- React 19
+- TypeScript
+- Prisma ORM
+- MongoDB Atlas / MongoDB
+- Zustand (state management)
+- Tailwind CSS
+- Zod + React Hook Form
+- ESLint
+
+## Project Structure
+
+```text
+sms-erp/
+  prisma/
+    schema.prisma
+  scripts/
+    seed-users.ts
+  src/
+    app/
+      api/
+        auth/
+          change-password/route.ts
+          login/route.ts
+          register/route.ts
+      auth/
+      dashboard/
+    components/
+    lib/
+      prisma.ts
+      cloudinary.ts
+      email-config.ts
+      utils.ts
+    store/
+    types/
+  env.example
+  package.json
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── (auth)/            # Authentication routes
-│   ├── (dashboard)/       # Protected dashboard routes
-│   ├── api/               # API routes
-│   └── globals.css        # Global styles
-├── components/            # Reusable UI components
-├── lib/                   # Utilities and configurations
-│   ├── prisma.ts         # Database client and utilities
-│   └── utils.ts          # Common utility functions
-├── hooks/                 # Custom React hooks
-├── store/                 # Zustand state management
-│   ├── useAuthStore.ts   # Authentication state
-│   └── useUIStore.ts     # UI state (modals, notifications, etc.)
-└── types/                 # TypeScript definitions
-    └── index.ts          # All type definitions
-prisma/
-└── schema.prisma         # Database schema
+
+## API Endpoints (Current)
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/change-password`
+
+## Prerequisites
+
+- Node.js 18.18+ (recommended: Node.js 20 LTS)
+- npm 9+
+- MongoDB connection string (local or Atlas)
+
+## Environment Variables
+
+Create a `.env.local` file in the project root.
+
+Use `env.example` as the template and set all required values:
+
+### Database
+
+- `DATABASE_URL`
+
+### Auth
+
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `JWT_SECRET`
+
+### Email
+
+- `EMAIL_SERVICE`
+- `EMAIL_USER`
+- `EMAIL_PASSWORD`
+- `EMAIL_FROM_NAME`
+- `ADMIN_EMAIL`
+
+### Cloudinary
+
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+### Optional External Integration
+
+- `EXTERNAL_API_URL`
+- `EXTERNAL_API_KEY`
+
+Important:
+
+- Never commit real secrets to Git.
+- Use strong random values for all secrets.
+- In production, define env vars in your hosting provider dashboard.
+
+## Local Development Setup
+
+1. Install dependencies:
+
+```bash
+npm install
 ```
 
-### 🗄️ Database Schema
+2. Configure environment:
 
-**Core Collections:**
-- **User** - Base user model with roles (ADMIN, DEVELOPER, MANAGER, SRE, MENTOR, STUDENT)
-- **StudentProfile** - Extended student information
-- **MentorProfile** - Extended mentor information  
-- **SREProfile** - Extended SRE information
-- **Batch** - Student batches with status tracking
-- **Mission** - Learning missions within batches
-- **Junction Tables** - StudentBatch, StudentMission, MissionMentor for relationships
+```bash
+cp env.example .env.local
+# Then edit .env.local
+```
 
-**Key Features:**
-- Role-based access control (RBAC)
-- Status tracking (ACTIVE, BANNED, DELISTED, etc.)
-- Flexible relationship management
-- Audit trails with timestamps
+3. Generate Prisma client:
 
-### 🔧 State Management
+```bash
+npx prisma generate
+```
 
-**Authentication Store (`useAuthStore`):**
-- User authentication state
-- Role-based access control
-- Persistent login state
-- Error handling
+4. Push schema to database:
 
-**UI Store (`useUIStore`):**
-- Sidebar state management
-- Modal management
-- Notification system
-- Theme preferences
-- Loading states
-- Form state tracking
+```bash
+npx prisma db push
+```
 
-### 🛠️ Utility Functions
+5. (Optional) Seed demo users:
 
-**Common Utilities:**
-- Date formatting and relative time
-- Email and phone validation
-- String manipulation
-- Array operations
-- Number formatting
-- Status and role utilities
-- Pagination helpers
-- Error handling
-- File utilities
-- Debounce and throttle functions
+```bash
+npm run seed
+```
 
-### 📋 Next Steps
+6. Start the dev server:
 
-**Phase 2: Authentication & Core Infrastructure**
-- [ ] NextAuth.js setup with JWT strategy
-- [ ] Role-based middleware for route protection
-- [ ] Login/logout flows
-- [ ] Password reset functionality
+```bash
+npm run dev
+```
 
-**Phase 3: Core Dashboards**
-- [ ] Student Dashboard (V1 MVP)
-- [ ] Mentor Dashboard (V1 MVP)
-- [ ] SRE Dashboard (V1 MVP)
+7. Open the app:
 
-**Phase 4: Advanced Features**
-- [ ] Admin & Manager Dashboards
-- [ ] Real-time features
-- [ ] File upload system
+- http://localhost:3000
 
-## 🚀 Getting Started
+## Production Build and Validation
 
-1. **Clone and Install:**
-   ```bash
-   cd sms-erp
-   npm install
-   ```
+Run these checks before every deployment:
 
-2. **Environment Setup:**
-   ```bash
-   cp env.example .env.local
-   # Edit .env.local with your MongoDB connection string
-   ```
+```bash
+npm run lint
+npm run build
+```
 
-3. **Database Setup:**
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
+If both pass, the codebase is build-ready.
 
-4. **Run Development Server:**
-   ```bash
-   npm run dev
-   ```
+## Deployment Guide
 
-5. **Open Browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+### Option A: Vercel (Recommended for Next.js)
 
-## 📚 Documentation
+1. Push code to GitHub/GitLab/Bitbucket.
+2. Import repository in Vercel.
+3. Add all required environment variables from your `.env.local`.
+4. Set `NEXTAUTH_URL` to your production domain.
+5. Deploy.
+6. After deploy, verify auth APIs and database connectivity.
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Zustand Documentation](https://github.com/pmndrs/zustand)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+### Option B: Node Server / VPS
 
-## 🤝 Contributing
+1. Build the project:
 
-1. Create a feature branch
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
+```bash
+npm install
+npm run build
+```
 
-## 📄 License
+2. Configure production env vars on the server.
+3. Start app:
 
-This project is licensed under the MIT License.
+```bash
+npm run start
+```
+
+4. Run behind reverse proxy (Nginx/Caddy) with HTTPS.
+
+## NPM Scripts
+
+- `npm run dev` - Run local development server
+- `npm run build` - Create production build
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint checks
+- `npm run seed` - Seed database with sample users
+
+## Security Checklist
+
+Before going live:
+
+- Rotate and secure all secrets
+- Set a valid production `NEXTAUTH_URL`
+- Use strong email app password (not plain personal password)
+- Restrict MongoDB network access and database user permissions
+- Enable HTTPS on production domain
+- Remove unused placeholder environment variables
+
+## Product Positioning
+
+SMS ERP is built for:
+
+- EdTech startups
+- Coaching institutes
+- Mentorship programs
+- Internal training teams
+- Bootcamps and academy operations
+
+It provides a practical base for scaling from an MVP to a full Student ERP with analytics, workflows, and automation.
+
+## License
+
+MIT License
